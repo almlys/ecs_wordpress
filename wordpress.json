@@ -1,0 +1,32 @@
+{
+  "variables": {
+    "aws_profile": "",
+    "aws_ecr_repository": ""
+  },
+  "builders": [
+    {
+      "type": "docker",
+      "image": "wordpress",
+      "commit": true,
+      "changes": [
+        "ENTRYPOINT [\"docker-entrypoint.sh\"]",
+        "CMD [\"apache2-foreground\"]"
+      ]
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "docker-tag",
+        "repository": "{{user `aws_ecr_repository`}}",
+        "tag": "latest"
+      },
+      {
+        "type": "docker-push",
+        "ecr_login": true,
+        "aws_profile": "{{user `aws_profile`}}",
+        "login_server": "https://{{user `aws_ecr_repository`}}"
+      }
+    ]
+  ]
+}
